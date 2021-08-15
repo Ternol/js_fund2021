@@ -5,6 +5,8 @@ import PostForm from "./components/PostForm";
 import MySelect from "./components/UI/select/MySelect";
 import MyInput from "./components/UI/input/MyInput";
 import PostFilter from "./components/PostFilter";
+import MyModal from "./components/UI/modal/MyModal";
+import MyButton from "./components/UI/button/myButton";
 
 function App() {
     const [posts, setPosts] = useState(
@@ -14,7 +16,7 @@ function App() {
             {id: 3, title: 'Component', body: 'Компонента - функция, возвращающая JSX разметку'}])
     // sort - значение, которое получаем из инпута  |  query - значение в поисковой строке
     const [filter,setFilter] = useState({sort: '', query: ''})
-
+    const [modal, setModal] = useState(false);
 
     const sortedPosts = useMemo(() => {
         if (filter.sort) {
@@ -31,6 +33,7 @@ function App() {
 
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
+        setModal(false)
     }
 
     const deletePost = (post) => {
@@ -39,7 +42,10 @@ function App() {
 
     return (
         <div className='App'>
-            <PostForm create={createPost}/>
+            <MyButton style={{marginTop: '30px'}} onClick={()=> setModal(true)}>Создать пост</MyButton>
+            <MyModal visible={modal} setVisible={setModal}>
+                <PostForm create={createPost}/>
+            </MyModal>
             <hr style={{margin: '15px 0'}}/>
             <PostFilter
                 filter={filter}
