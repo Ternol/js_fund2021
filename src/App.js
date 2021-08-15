@@ -4,6 +4,7 @@ import PostsList from "./components/PostsList";
 import PostForm from "./components/PostForm";
 import MySelect from "./components/UI/select/MySelect";
 import MyInput from "./components/UI/input/MyInput";
+import PostFilter from "./components/PostFilter";
 
 function App() {
     const [posts, setPosts] = useState(
@@ -11,26 +12,22 @@ function App() {
             {id: 1, title: 'Javascript', body: 'Javascript - язык программирования'},
             {id: 2, title: 'Hooks', body: 'Хуки - это функции, начинающиеся со слова use (useState() и т. д)'},
             {id: 3, title: 'Component', body: 'Компонента - функция, возвращающая JSX разметку'}])
-
-    const [selectedSort, setSelectedSort] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
+    // sort - значение, которое получаем из инпута  |  query - значение в поисковой строке
+    const [filter,setFilter] = useState({sort: '', query: ''})
 
 
     const sortedPosts = useMemo(() => {
-        if (selectedSort) {
-            return [...posts].sort((a,b) => a[selectedSort].localeCompare(b[selectedSort]));
+        if (filter.sort) {
+            return [...posts].sort((a,b) => a[filter.sort].localeCompare(b[filter.sort]));
         }
         return posts
-    }, [selectedSort, posts]);
+    }, [filter.sort, posts]);
 
     const searchedAndSortedPosts = useMemo(() => {
-        return sortedPosts.filter(post => post.title.toLowerCase().includes(searchQuery.toLowerCase()))
-    },[sortedPosts, searchQuery])
+        return sortedPosts.filter(post => post.title.toLowerCase().includes(filter.query.toLowerCase()))
+    },[sortedPosts, filter.query])
 
 
-    const sortPosts = (selectValue) => {
-        setSelectedSort(selectValue);
-    }
 
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
@@ -44,18 +41,9 @@ function App() {
         <div className='App'>
             <PostForm create={createPost}/>
             <hr style={{margin: '15px 0'}}/>
-            <MyInput placeholder='Поиск...'
-                     value={searchQuery}
-                     onChange={e => setSearchQuery(e.target.value)}
-            />
-            <hr style={{margin: '15px 0'}}/>
-            <MySelect defaultValue="Сортировка по:"
-                      options={[
-                          {value: 'title', name: 'По названию'},
-                          {value: 'body', name: 'По описанию'}
-                      ]}
-                      value={selectedSort}
-                      onChange={sortPosts}
+            <PostFilter
+                filter={filter}
+                setFilter={setFilter}
             />
 
             <PostsList posts={searchedAndSortedPosts} delete={deletePost}/>
