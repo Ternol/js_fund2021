@@ -1,9 +1,11 @@
 import React from 'react';
 import PostItem from "./PostItem";
+import MySelect from "./UI/select/MySelect";
 
 const PostsList = (props) => {
     return (
         <div>
+
             {props.posts.length
             ? <h1 style={{textAlign: 'center'}}>Список постов</h1>
             : <h1 style={{textAlign: 'center'}}>Посты не найдены</h1>
