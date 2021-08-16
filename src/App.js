@@ -2,14 +2,13 @@ import React, {useEffect, useMemo, useState} from "react";
 import './App.css'
 import PostsList from "./components/PostsList";
 import PostForm from "./components/PostForm";
-import MySelect from "./components/UI/select/MySelect";
-import MyInput from "./components/UI/input/MyInput";
 import PostFilter from "./components/PostFilter";
 import MyModal from "./components/UI/modal/MyModal";
 import MyButton from "./components/UI/button/myButton";
 import {usePosts} from "./hooks/usePosts";
 import axios from "axios";
 import PostService from "./API/PostService";
+import {useFetching} from "./hooks/useFetching";
 
 function App() {
     const [posts, setPosts] = useState(
@@ -20,22 +19,17 @@ function App() {
 
     const [modal, setModal] = useState(false);
 
-    useEffect(() => fetchPost(), [])
+    const [fetchPosts, isPostsLoading, postsError] = useFetching(async () => {
+        const posts = await PostService.getAll();
+        setPosts(posts)
+    })
+
+    useEffect(() => fetchPosts(), [])
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
         setModal(false)
     }
-    const [isPostLoading, setIsPostLoading] = useState(false);
 
-
-    async function fetchPost() {
-        setIsPostLoading(true)
-        await setTimeout(async ()=> {
-            const posts = await PostService.getAll();
-            setPosts(posts)
-            setIsPostLoading(false)
-        }, 700)
-    }
 
     const deletePost = (post) => {
         setPosts(posts.filter(p => p.id !== post.id))
@@ -54,7 +48,11 @@ function App() {
                 filter={filter}
                 setFilter={setFilter}
             />
-            {isPostLoading
+            {postsError &&
+                <h1>Произошла ошибка {postsError}</h1>
+            }
+
+            {isPostsLoading
                 ? <h1 style={{textAlign: 'center'}}>Посты загружаются...</h1>
                 :  <PostsList posts={searchedAndSortedPosts} delete={deletePost}/>
             }
