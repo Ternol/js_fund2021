@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import './App.css'
 import PostsList from "./components/PostsList";
 import PostForm from "./components/PostForm";
@@ -8,31 +8,44 @@ import PostFilter from "./components/PostFilter";
 import MyModal from "./components/UI/modal/MyModal";
 import MyButton from "./components/UI/button/myButton";
 import {usePosts} from "./hooks/usePosts";
+import axios from "axios";
+import PostService from "./API/PostService";
 
 function App() {
     const [posts, setPosts] = useState(
-        [
-            {id: 1, title: 'Javascript', body: 'Javascript - язык программирования'},
-            {id: 2, title: 'Hooks', body: 'Хуки - это функции, начинающиеся со слова use (useState() и т. д)'},
-            {id: 3, title: 'Component', body: 'Компонента - функция, возвращающая JSX разметку'}])
+        [])
+
     // sort - значение, которое получаем из инпута  |  query - значение в поисковой строке
-    const [filter,setFilter] = useState({sort: '', query: ''})
+    const [filter, setFilter] = useState({sort: '', query: ''})
+
     const [modal, setModal] = useState(false);
 
+    useEffect(() => fetchPost(), [])
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
         setModal(false)
+    }
+    const [isPostLoading, setIsPostLoading] = useState(false);
+
+
+    async function fetchPost() {
+        setIsPostLoading(true)
+        await setTimeout(async ()=> {
+            const posts = await PostService.getAll();
+            setPosts(posts)
+            setIsPostLoading(false)
+        }, 700)
     }
 
     const deletePost = (post) => {
         setPosts(posts.filter(p => p.id !== post.id))
     }
 
-    const searchedAndSortedPosts = usePosts(posts,filter.sort,filter.query)
+    const searchedAndSortedPosts = usePosts(posts, filter.sort, filter.query)
 
     return (
         <div className='App'>
-            <MyButton style={{marginTop: '30px'}} onClick={()=> setModal(true)}>Создать пост</MyButton>
+            <MyButton style={{marginTop: '30px'}} onClick={() => setModal(true)}>Создать пост</MyButton>
             <MyModal visible={modal} setVisible={setModal}>
                 <PostForm create={createPost}/>
             </MyModal>
@@ -41,8 +54,11 @@ function App() {
                 filter={filter}
                 setFilter={setFilter}
             />
+            {isPostLoading
+                ? <h1 style={{textAlign: 'center'}}>Посты загружаются...</h1>
+                :  <PostsList posts={searchedAndSortedPosts} delete={deletePost}/>
+            }
 
-            <PostsList posts={searchedAndSortedPosts} delete={deletePost}/>
         </div>
 
     )
