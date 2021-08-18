@@ -1,6 +1,5 @@
 import React from 'react';
 import PostItem from "./PostItem";
-import MySelect from "./UI/select/MySelect";
 
 const PostsList = (props) => {
     return (
@@ -11,7 +10,7 @@ const PostsList = (props) => {
             : <h1 style={{textAlign: 'center'}}>Посты не найдены</h1>
             }
 
-            {props.posts.map((p,index) => <PostItem post={p} number={index+1} key={p.id} delete={props.delete}/>)}
+            {props.posts.map(p => <PostItem post={p} key={p.id} delete={props.delete}/>)}
         </div>
     );
 };
