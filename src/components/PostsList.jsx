@@ -1,5 +1,6 @@
 import React from 'react';
 import PostItem from "./PostItem";
+import {useHistory} from "react-router-dom";
 
 const PostsList = (props) => {
     return (
