@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, {useEffect, useRef} from 'react'
 import {useState} from "react";
 import PostService from "../API/PostService";
 import {useFetching} from "../hooks/useFetching";
@@ -13,6 +13,8 @@ import Pagination from "../components/UI/pagination/Pagination";
 
 
 const Posts = () => {
+    const lastElement = useRef();
+    const observer = useRef();
 
     const [posts, setPosts] = useState([])
 
@@ -23,14 +25,13 @@ const Posts = () => {
 
     const [totalPages, setTotalPages] = useState(0);
 
-
-
     const [limit, setLimit] = useState(10);
+
     const [currentPage, setCurrentPage] = useState(1);
 
     const [fetchPosts, isPostsLoading, postsError] = useFetching(async () => {
         const response = await PostService.getAll(limit, currentPage);
-        setPosts(response.data);
+        setPosts([...posts,...response.data]);
         const totalCount = response.headers['x-total-count'];
         setTotalPages(getPageCount(totalCount, limit));
     })
@@ -40,6 +41,18 @@ const Posts = () => {
     }
 
     useEffect(() => fetchPosts(), [currentPage])
+
+    useEffect(()=> {
+        if (isPostsLoading) return
+        if (observer.current) observer.current.disconnect();
+        const callback = function(entries, observer) {
+            if(entries[0].isIntersecting && currentPage < totalPages) {
+                setCurrentPage(currentPage+1)
+            }
+        };
+        observer.current = new IntersectionObserver(callback);
+        observer.current.observe(lastElement.current);
+    },[isPostsLoading])
 
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
@@ -68,10 +81,10 @@ const Posts = () => {
             {postsError &&
             <h1>Произошла ошибка {postsError}</h1>
             }
-
-            {isPostsLoading
-                ? <h1 style={{textAlign: 'center'}}>Посты загружаются...</h1>
-                : <PostsList posts={searchedAndSortedPosts} delete={deletePost}/>
+            <PostsList posts={searchedAndSortedPosts} delete={deletePost}/>
+            <div ref={lastElement} style={{height:50}}></div>
+            {isPostsLoading &&
+                 <h1 style={{textAlign: 'center'}}>Посты загружаются...</h1>
             }
 
             <Pagination totalPages={totalPages}
