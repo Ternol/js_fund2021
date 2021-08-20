@@ -68,6 +68,12 @@
     font-size: 20px;
 }
 
+.navbar__item__exitbtn{
+    position: fixed;
+    right: 20px;
+    top: 18px;
+}
+
 .error__page span {
     text-align: center;
     font-weight: bold;

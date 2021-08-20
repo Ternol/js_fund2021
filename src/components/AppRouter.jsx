@@ -1,21 +1,37 @@
-import React from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Redirect, Route, Switch} from "react-router-dom";
-import Posts from "../pages/Posts";
-import About from "../pages/About";
-import Error from "../pages/Error";
-import PostIdPage from "../pages/PostIdPage";
-import {routes} from "./router/routes";
+import {privateRoutes, publicRoutes} from "./router/routes";
+import {AuthContext} from "../context/context";
+
 
 const AppRouter = () => {
+    const {isAuth, setIsAuth, isLoading} = useContext(AuthContext);
+    if (isLoading) {
+        return <div>
+            <h2 style={{textAlign: 'center'}}>Идет загрузка..</h2>
+        </div>
+    }
     return (
+        isAuth ?
         <Switch>
-            {routes.map(route => <Route
+            {privateRoutes.map(route => <Route
                 component={route.component}
                 path={route.path}
                 exact={route.exact}
+                key={route.path}
             />)}
             <Redirect to='/posts'/>
         </Switch>
+            :
+            <Switch>
+                {publicRoutes.map(route => <Route
+                    component={route.component}
+                    path={route.path}
+                    exact={route.exact}
+                    key={route.path}
+                />)}
+                <Redirect to='/login'/>
+            </Switch>
     );
 };
 

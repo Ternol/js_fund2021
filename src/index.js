@@ -1,15 +1,12 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import {BrowserRouter} from "react-router-dom";
+import {AuthContext} from "./context/context";
 
 
 ReactDOM.render(
-    <BrowserRouter>
-    <App />
-    </BrowserRouter>
-    ,
-  document.getElementById('root')
+    <App />, document.getElementById('root')
 );
 
 
